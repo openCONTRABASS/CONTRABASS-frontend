@@ -1,0 +1,25 @@
+/* avoid inline-block of mat form fields */
+.mat-form-field {
+  display: block;
+}
+
+.operation-event {
+  display: block;
+}
+
+.operations-accordion {
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+
+.log-monitor {
+  max-height: 200px;
+}
+
+.action-button {
+  margin-right: 1em;
+}
+
+.execute-button {
+  float: right;
+}

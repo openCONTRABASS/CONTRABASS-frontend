@@ -1,1 +1,15 @@
 /* You can add global styles to this file, and also import other style files */
+
+html, body { height: 100%; }
+body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+
+/* align toast notifications to the right */
+/*
+  Only feasible way to do so is to use the !important statement,
+  due to the library Materialize css sharing toast class and identifier
+  Alternatively use sass: https://github.com/scttcper/ngx-toastr/issues/128
+*/
+
+.toast-bottom-right {
+  right: 14px !important;
+}

@@ -1,0 +1,57 @@
+.table-container {
+  padding-left: 2em;
+  padding-right: 2em;
+  padding-bottom: 2em;
+}
+
+/*
+  Fixed colum sizes
+*/
+.mat-column-file {
+  width: 14rem;
+}
+
+.mat-column-date {
+  width: 5rem;
+  text-align: center;
+}
+
+.mat-column-metabolites {
+  width: 5rem;
+  text-align: center;
+}
+
+.mat-column-reactions {
+  width: 5rem;
+  text-align: center;
+}
+
+.mat-column-genes {
+  width: 4rem;
+  text-align: center;
+}
+
+.mat-column-model {
+  width: 24rem;
+}
+
+.mat-column-delete {
+  width: 1rem;
+  text-align: center;
+}
+
+/*
+Remove right margin from table
+ */
+/*
+td.mat-cell:last-of-type, td.mat-footer-cell:last-of-type {
+  padding-right: 14px;
+}
+*/
+
+/*
+tr:nth-child(even) {
+  background-color: #dddddd;
+}
+*/
+

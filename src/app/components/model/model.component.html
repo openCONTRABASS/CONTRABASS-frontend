@@ -1,0 +1,117 @@
+
+
+<div [ngSwitch]=model.tasks[0].status class="operations-accordion">
+  <div *ngSwitchCase="taskStatusEnum.WAITING_OPERATION">
+    <mat-accordion>
+      <!-- #docregion basic-panel -->
+      <!-- #docregion hide-toggle -->
+      <mat-expansion-panel>
+        <!-- #enddocregion hide-toggle -->
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            Compute growth dependent reactions
+          </mat-panel-title>
+          <mat-panel-description>
+          </mat-panel-description>
+        </mat-expansion-panel-header>
+
+        <form [formGroup]="formGrowthDependentGroup" #formDir="ngForm">
+          <div class="cross-validation" [class.cross-validation-error]="
+          formGrowthDependentGroup.errors?.formGrowthDependentValidator
+          && (formGrowthDependentGroup.touched
+          || formGrowthDependentGroup.dirty)">
+            <div class="form-group">
+              <mat-form-field appearance="fill">
+                <mat-label>Objective</mat-label>
+                <input matInput class="form-control"
+                       formControlName="objective">
+              </mat-form-field>
+
+            </div>
+          </div>
+          <button mat-raised-button class="execute-button" color="primary" [disabled]="formGrowthDependentGroup.invalid" (click)="operationComputeGrowthDependent(model)">Execute</button>
+
+        </form>
+
+      </mat-expansion-panel>
+
+      <mat-expansion-panel>
+        <!-- #enddocregion hide-toggle -->
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            Critical reactions report
+          </mat-panel-title>
+          <mat-panel-description>
+            <!--This is a summary of the content-->
+          </mat-panel-description>
+        </mat-expansion-panel-header>
+
+        <form [formGroup]="formReactionsSetsGroup" #formDir="ngForm">
+          <div class="cross-validation"
+               [class.cross-validation-error]="formReactionsSetsGroup.errors?.formReactionsValidator
+               && (formReactionsSetsGroup.touched || formReactionsSetsGroup.dirty)">
+
+            <mat-form-field appearance="fill">
+              <mat-label>Fraction of optimum</mat-label>
+              <input matInput class="form-control"
+                     formControlName="fraction_of_optimum" type="number" step=".05">
+              <mat-error *ngIf="form_reacs_fraction_of_optimum.invalid && (form_reacs_fraction_of_optimum.dirty || form_reacs_fraction_of_optimum.touched)">
+                <div *ngIf="form_reacs_fraction_of_optimum.errors.invalidMinMax">
+                  Fraction of optimum must be between 0.0 and 1.0
+                </div>
+              </mat-error>
+            </mat-form-field>
+
+            <mat-form-field appearance="fill">
+              <mat-label>Objective</mat-label>
+              <input matInput class="form-control"
+                     formControlName="objective">
+            </mat-form-field>
+
+            <!--
+            <mat-form-field appearance="fill">
+              <mat-label>Optiization method</mat-label>
+              <mat-select formControlName="optimization">
+                <mat-option *ngFor="let optimization of optimizationEnumView" [value]="optimization.value" >
+                  {{optimization.viewValue}}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+            -->
+
+            <button mat-raised-button class="execute-button" color="primary" [disabled]="formReactionsSetsGroup.invalid" (click)="operationComputeReactionsSets(model)">Execute</button>
+          </div>
+        </form>
+
+      </mat-expansion-panel>
+    </mat-accordion>
+  </div>
+  <span *ngSwitchCase="taskStatusEnum.IN_QUEUE">
+    <div *ngIf="model.pending_length == 0; then noTaskBlock else multipleTaskBlock"></div>
+      <ng-template #noTaskBlock>Queued.</ng-template>
+      <ng-template #multipleTaskBlock>Queued. Position: {{model.pending_length}}</ng-template>
+  </span>
+  <div *ngSwitchCase="taskStatusEnum.RUNNING">
+        <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+        <log-monitor
+          [logStream]="logStream$ | async"
+          theme="light"
+          title="Log"
+          [animated]="true"
+          [icons]="true"
+          [history]="restoredLogs"
+          class="log-monitor"
+        ></log-monitor>
+  </div>
+  <div *ngSwitchCase="taskStatusEnum.DONE">
+    <a href="{{model.file_html}}">
+      <button class="action-button" mat-raised-button color="basic">View Report</button>
+    </a>
+    <a href="{{model.file_spreadsheet}}">
+      <button class="action-button" mat-raised-button color="basic">Download spreadsheet <mat-icon aria-hidden="false">download_file</mat-icon></button>
+    </a>
+  </div>
+  <span *ngSwitchCase="taskStatusEnum.EXPIRED">Expired</span>
+  <span *ngSwitchCase="taskStatusEnum.FAILURE">Error: Something went wrong...</span>
+</div>
+

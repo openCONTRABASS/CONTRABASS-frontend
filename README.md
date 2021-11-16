@@ -1,4 +1,7 @@
-# Project
+# CONTRABASS-frontend
+
+Constraint-based model vulnerabilities analysis - Angular web application for [CONTRABASS-webservices](https://github.com/openCONTRABASS/CONTRABASS-webservice).
+Based on [CONTRABASS python analysis tool](https://github.com/openCONTRABASS/CONTRABASS).
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 11.1.2.
 

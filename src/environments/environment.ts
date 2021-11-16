@@ -3,7 +3,16 @@
 // The list of file replacements can be found in `angular.json`.
 
 export const environment = {
-  production: false
+  production: false,
+
+  // Note that EXPIRY_TASKS must be: EXPIRY_MODELS >= EXPIRY_TASKS
+  EXPIRY_MODELS: 48, // 2 days
+  EXPIRY_TASKS: 48, // 2 days
+
+  websocketEndpoint: 'ws://localhost:5000',
+  baseApiUrl: 'http://localhost:5000',
+  baseApiUrlStatic: 'http://localhost:5000/static/',
+
 };
 
 /*
