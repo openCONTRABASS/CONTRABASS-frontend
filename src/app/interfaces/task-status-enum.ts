@@ -4,5 +4,6 @@ export enum TaskStatusEnum {
   RUNNING,
   DONE,
   EXPIRED,
-  FAILURE
+  FAILURE,
+  DELETING
 }

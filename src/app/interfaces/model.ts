@@ -11,7 +11,7 @@ export interface Model {
   reactions: number;
   genes: number;
   tasks: Task[];
-  pending_length: number;
+  pending_length: number; // position at the tasks queue in backend
 
 }
 

@@ -27,13 +27,14 @@ export class AppComponent implements OnInit {
 
     this.models = this.storageService.getModels();
 
+    // When a change in any model is notified, the list of models is updated according to the models stored in storage.
     this.messagesService.modelsChanged$.subscribe(
       model_uuid => this.models = this.storageService.getModels()
     );
 
     this.loading_file = false;
 
-    // Initializa toast notificaitons
+    // Initialize toast notificaitons
     // As this component is the parent component, it will hold and show
     // all received toast notifications that child component have published
     this.notificationsService.initComponent();

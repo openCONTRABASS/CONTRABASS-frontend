@@ -29,8 +29,7 @@ export class ListElementComponent implements OnInit {
   }
 
   deleteModel(model: Model): void {
-    this.storageService.popModel(model);
-    this.messagesService.notifyModelChange(model);
+    this.messagesService.notifyModelDeleted(model);
   }
 
   refresh() {

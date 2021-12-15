@@ -1,9 +1,9 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {Model, process_model_expiry} from '../../interfaces/model';
 import {TaskStatusEnum} from '../../interfaces/task-status-enum';
-import {Observable, Observer, Subject, timer} from 'rxjs';
+import {Observable, Subject, timer} from 'rxjs';
 import {HttpClient} from '@angular/common/http';
-import {map, retry, switchMap, take, takeUntil} from 'rxjs/operators';
+import {retry, switchMap, takeUntil} from 'rxjs/operators';
 import {StorageService} from '../../services/storage.service';
 import {MessagesService} from '../../services/messages.service';
 import {TaskTypeEnum} from '../../interfaces/task-type-enum';
@@ -16,8 +16,8 @@ import {FormGrowthDependent} from '../../interfaces/forms/form-growth-dependent'
 import {FormControl, FormGroup} from '@angular/forms';
 import {ValidationService} from '../../services/validation.service';
 import {FormReactions} from '../../interfaces/forms/form-reactions';
-import {MediumEnum, MediumEnumView, MediumView} from '../../interfaces/forms/medium-enum';
-import {OptimizationEnum, OptimizationEnumView, OptimizationView} from '../../interfaces/forms/optimization-enum';
+import {MediumEnumView, MediumView} from '../../interfaces/forms/medium-enum';
+import {OptimizationEnumView, OptimizationView} from '../../interfaces/forms/optimization-enum';
 import {WebsocketsService} from '../../services/websockets.service';
 import {ResponseTaskCriticalReactions} from '../../interfaces/response-task-critical-reactions';
 import {NgxLogMessage} from '../../interfaces/ngx-log-message';
@@ -81,6 +81,18 @@ export class ModelComponent implements OnInit {
     }, { validators: this.validationService.formReactionsValidator });
 
     /********************************************************************************************/
+    // INPUT EXCHANGE INIT
+    // this class will be notified when a model has been deleted
+    this.messagesService.modelsDeleted$.subscribe(
+      (modelUUID) => {
+        console.log(modelUUID);
+        if (this.model.uuid === modelUUID) {
+          this.deleteModel(this.model);
+        }
+      }
+    );
+
+    /********************************************************************************************/
     /* STATUS RECOVERY */
     // celery wont give expiry info
     // have to save and calculate manually
@@ -93,8 +105,12 @@ export class ModelComponent implements OnInit {
 
     // restart the process of checking running tasks
     for (let i = 0; i < this.model.tasks.length; i++) {
-      if (this.model.tasks[i].status == TaskStatusEnum.IN_QUEUE
-        // tslint:disable-next-line:triple-equals
+
+      // model was deleted but could not finish deleting it -> retry again
+      if (this.model.tasks[i].status === TaskStatusEnum.DELETING) {
+        this.stopTaskAndDeleteModel( this.model, this.model.tasks[i].uuid);
+
+      } else if (this.model.tasks[i].status == TaskStatusEnum.IN_QUEUE
         || this.model.tasks[i].status == TaskStatusEnum.RUNNING) {
 
         switch (this.model.tasks[i].type) {
@@ -392,9 +408,42 @@ export class ModelComponent implements OnInit {
   }
 
 
-  deleteModel(model: Model) {
+  deleteModelPermanently(model: Model) {
     this.storageService.popModel(model);
     this.messagesService.notifyModelChange(model);
+  }
+
+  stopTaskAndDeleteModel(model: Model, task_uuid: string) {
+    this.backService.stopExecution(task_uuid).subscribe(
+      (respose) => {
+        // success removing task from back -> delete model locally
+        this.deleteModelPermanently(model);
+      },
+      (error) => {
+        // error after retry: delete the model anyway
+        this.deleteModelPermanently(model);
+      }
+    );
+  }
+
+  deleteModel(model: Model) {
+    console.log("Deleting model...");
+    let still_running = false;
+    let task_still_running;
+    for (let i = 0; i < model.tasks.length; i++) {
+      if (model.tasks[i].status === TaskStatusEnum.IN_QUEUE || model.tasks[i].status === TaskStatusEnum.RUNNING) {
+        still_running = true;
+        task_still_running = i;
+      }
+    }
+    console.log(model.tasks[task_still_running].uuid);
+    if (still_running) {
+      this.setStatusForTask(model.tasks[task_still_running].uuid, TaskStatusEnum.DELETING, model);
+      this.stopCheckTasks();
+      this.stopTaskAndDeleteModel(model, model.tasks[task_still_running].uuid);
+    } else {
+      this.deleteModelPermanently(model);
+    }
   }
 
   initTypeForTask(task_uuid: string, task_type: TaskTypeEnum, model: Model) {

@@ -54,6 +54,7 @@ export class BackService {
       Constants.baseApiUrl + url, formData, {observe: 'response'});
   }
 
+
   computeReactionsSet(formReactions: FormReactions): Observable<any> {
 
     console.log('Calling POST /critical_reactions');
@@ -73,9 +74,19 @@ export class BackService {
       Constants.baseApiUrl + url, formData, {observe: 'response'});
   }
 
-  getGrowthDependentTasks(task_uuid: string): Observable<any> {
+  stopExecution(taskUUUID: string): Observable<any> {
 
-    const url = `/results/${task_uuid}/growth_dependent_reactions`;
+    console.log('Calling POST /terminate');
+
+    const url = `/results/${taskUUUID}/terminate`;
+
+    return this.http.post(
+      Constants.baseApiUrl + url, {observe: 'response'});
+  }
+
+  getGrowthDependentTasks(taskUUUID: string): Observable<any> {
+
+    const url = `/results/${taskUUUID}/growth_dependent_reactions`;
 
     return this.http.get(Constants.baseApiUrl + url, {observe: 'response'});
   }
