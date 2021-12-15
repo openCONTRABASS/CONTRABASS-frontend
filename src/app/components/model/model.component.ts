@@ -85,7 +85,6 @@ export class ModelComponent implements OnInit {
     // this class will be notified when a model has been deleted
     this.messagesService.modelsDeleted$.subscribe(
       (modelUUID) => {
-        console.log(modelUUID);
         if (this.model.uuid === modelUUID) {
           this.deleteModel(this.model);
         }
@@ -301,7 +300,7 @@ export class ModelComponent implements OnInit {
         this.setStatusForTask(task_uuid, TaskStatusEnum.IN_QUEUE, this.model);
         this.initTypeForTask(task_uuid, TaskTypeEnum.COMPUTE_GROWTH_DEPENDENT, this.model);
         this.storageService.updateModel(model);
-        console.log('task uuid: ' + task_uuid);
+        console.log('task uuid: ' + model.tasks[0].uuid);
 
         this.periodicallyCheckGrowthDependent(task_uuid);
 
@@ -356,7 +355,7 @@ export class ModelComponent implements OnInit {
         this.setStatusForTask(task_uuid, TaskStatusEnum.IN_QUEUE, model);
         this.initTypeForTask(task_uuid, TaskTypeEnum.COMPUTE_CRITICAL_REACTIONS, model);
         this.storageService.updateModel(model);
-        console.log('task uuid: ' + task_uuid);
+        console.log('task uuid: ' + model.tasks[0].uuid);
 
         this.periodicallyCheckReactionsSets(task_uuid);
 
@@ -427,16 +426,15 @@ export class ModelComponent implements OnInit {
   }
 
   deleteModel(model: Model) {
-    console.log("Deleting model...");
     let still_running = false;
     let task_still_running;
     for (let i = 0; i < model.tasks.length; i++) {
       if (model.tasks[i].status === TaskStatusEnum.IN_QUEUE || model.tasks[i].status === TaskStatusEnum.RUNNING) {
+        console.log(model.tasks[i].status);
         still_running = true;
         task_still_running = i;
       }
     }
-    console.log(model.tasks[task_still_running].uuid);
     if (still_running) {
       this.setStatusForTask(model.tasks[task_still_running].uuid, TaskStatusEnum.DELETING, model);
       this.stopCheckTasks();
