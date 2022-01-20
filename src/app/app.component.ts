@@ -7,6 +7,7 @@ import {MessagesService} from './services/messages.service';
 import {Task} from './interfaces/task';
 import {WebsocketsService} from './services/websockets.service';
 import {NotificationsService} from './services/notifications.service';
+import {Constants} from './constants';
 
 @Component({
   selector: 'app-root',
@@ -18,12 +19,23 @@ export class AppComponent implements OnInit {
   files: any[] = [];
   models: Model[] = [];
 
+  // This boolean is true online when we get ERR_CONNECTION_REFUSED from backend,
+  // meaning that no connection could be established with back.
+  // It trigger the connection error message
+  error_connection: boolean;
+
   error_reading_file: boolean;
   error_text = '';
   loading_file: boolean;
 
+  displayedColumns: any;
+  dataSource: any;
+
 
   ngOnInit(): void {
+
+    this.displayedColumns = Constants.MODEL_COLUMNS;
+    this.dataSource = Constants.MODEL_DATA;
 
     this.models = this.storageService.getModels();
 
@@ -33,8 +45,9 @@ export class AppComponent implements OnInit {
     );
 
     this.loading_file = false;
+    this.error_connection = false;
 
-    // Initialize toast notificaitons
+    // Initialize toast notifications
     // As this component is the parent component, it will hold and show
     // all received toast notifications that child component have published
     this.notificationsService.initComponent();
@@ -73,6 +86,64 @@ export class AppComponent implements OnInit {
     this.files.splice(index, 1);
   }
 
+  handleSubmitResponse(response, model_name) {
+    if (response.status == 200) {
+
+      // File and model read successfully !
+      this.error_reading_file = false;
+      // No connection error with backend!
+      this.error_connection = false;
+      const new_model: Model = {
+        file: model_name,
+        submitted: new Date(),
+        uuid: response.body.model_uuid,
+        file_html: '',
+        file_spreadsheet: '',
+        metabolites: response.body.metabolites,
+        reactions: response.body.reactions,
+        reactions_list: response.body.reactions_list,
+        genes: response.body.genes,
+        tasks: [{
+          type: undefined,
+          uuid: undefined,
+          status: TaskStatusEnum.WAITING_OPERATION,
+          init_date: undefined
+        }],
+        pending_length: 0
+      };
+      this.storageService.pushModel(new_model);
+      this.models.push(new_model);
+      this.messagesService.notifyNewModel();
+      // Notify that the model has been read successfully to show a toast notification
+      this.notificationsService.info(`File ${model_name} read successfully`);
+      console.log(this.models);
+
+    }
+
+    // Or any other header:
+    console.log(response.headers.get('X-Custom-Header'));
+    this.loading_file = false;
+  }
+
+
+  handleSubmitErrorResponse(err, model_name) {
+    console.log('HTTP Error', err);
+    if (err.status !== 0) {
+      this.error_reading_file = true;
+      // No connection error with backend!
+      this.error_connection = false;
+      this.error_text = Constants.ERROR_READING_FILE + err.error.message;
+      this.loading_file = false;
+      // Notify that there was an error reading the file in a toast notification
+      this.notificationsService.error(`Error reading file ${model_name}`);
+    } else {
+      // Cannot connect with backend!
+      this.error_connection = true;
+      // stop loading file
+      this.loading_file = false;
+    }
+  }
+
   /**
    * Convert Files list to normal array list
    * @param files (Files List)
@@ -90,54 +161,34 @@ export class AppComponent implements OnInit {
 
       this.backService.upload(item).subscribe(
         (response) => {
-
-          if (response.status == 200) {
-
-            // File and model read succesfully !
-            this.error_reading_file = false;
-            const new_model: Model = {
-              file: item.name,
-              submitted: new Date(),
-              uuid: response.body.model_uuid,
-              file_html: '',
-              file_spreadsheet: '',
-              metabolites: response.body.metabolites,
-              reactions: response.body.reactions,
-              genes: response.body.genes,
-              tasks: [{
-                type: undefined,
-                uuid: undefined,
-                status: TaskStatusEnum.WAITING_OPERATION,
-                init_date: undefined
-              }],
-              pending_length: 0
-            };
-            this.storageService.pushModel(new_model);
-            this.models.push(new_model);
-            this.messagesService.notifyNewModel();
-            // Notify that the model has been read succesfully to show a toast notification
-            this.notificationsService.info(`File ${item.name} read successfully`);
-            console.log(this.models);
-
-          }
-
-          // Or any other header:
-          console.log(response.headers.get('X-Custom-Header'));
-          this.loading_file = false;
+          this.handleSubmitResponse(response, item.name);
         },
         (err) => {
-          console.log('HTTP Error', err);
-          this.error_reading_file = true;
-          this.error_text = err.error.message;
-          this.loading_file = false;
-          // Notify that there was an error reading the file in a toast notification
-          this.notificationsService.error(`Error reading file ${item.name}`);
+          this.handleSubmitErrorResponse(err, item.name);
         },
       );
     }
 
     this.fileDropEl.nativeElement.value = '';
   }
+
+  tryModelUpload(model_name, model_url) {
+    this.loading_file = true;
+    // restore error flag (i.e. 'error_reading_file') and error message prompted (i.e. 'error_text')
+    // when a new file is submitted
+    this.error_reading_file = false;
+    this.error_text = '';
+
+    this.backService.upload_with_url(model_url).subscribe(
+      (response) => {
+        this.handleSubmitResponse(response, model_name);
+      },
+      (err) => {
+        this.handleSubmitErrorResponse(err, model_name);
+      },
+    );
+  }
+
 
   /**
    * format bytes

@@ -8,7 +8,7 @@
           <i class="fa fa-file-alt" style="color:white"></i><div class="header-link-text hide-on-med-and-down">Documentation</div>
         </a></li>
         <li><a href="https://github.com/openCONTRABASS/CONTRABASS" class="header-link">
-          <i class="fab fa-github" style="color:white"></i><div class="header-link-text hide-on-med-and-down">Github</div>
+          <i class="fab fa-github"></i><div class="header-link-text hide-on-med-and-down">Github</div>
         </a></li>
       </ul>
     </div>
@@ -16,19 +16,70 @@
 
   <main>
 
-
-    <div class="drop-container-container">
-      <mat-card class="drop-container-card mat-elevation-z6" >
-          <div class="drop-container" (fileDropped)="onFileDropped($event)" appDragDrop>
-            <input type="file" #fileDropRef id="fileDropRef" multiple (change)="fileBrowseHandler($event.target.files)" />
-            <img src="assets/img/ic-upload-file.svg" alt="">
-            <h3>Drag and drop SBML model here</h3>
-            <h3>or</h3>
-            <label for="fileDropRef">Browse for model</label>
+    <div *ngIf="error_connection">
+      <mat-card class="error-card">
+        <mat-card-content class="error-connection-card">
+          <div class="div-icon-error-connection">
+            <span class="material-icons" style="text-align: center; font-size: 50px;">cloud_off</span>
           </div>
+          <div>
+            Ooops... It seems that CONTRABASS web server is not available at the moment. Please try again later.<br><br>
+            If the problem persists, please contact support at: <a style="font-family: monospace; color: white;" href="mailto:contrabass@unizar.es">contrabass@unizar.es</a> <br><br>
+            In the meantime, you can also use CONTRABASS via the python command line application
+            (<a style="font-family: monospace; color: white;" href="https://github.com/openCONTRABASS/CONTRABASS">https://github.com/openCONTRABASS/CONTRABASS</a>)
+          </div>
+        </mat-card-content>
       </mat-card>
     </div>
 
+    <div class="flex-container">
+
+      <div class="drop-container-container">
+        <mat-card class="drop-container-card mat-elevation-z6" >
+            <div class="drop-container" (fileDropped)="onFileDropped($event)" appDragDrop>
+              <input type="file" #fileDropRef id="fileDropRef" multiple (change)="fileBrowseHandler($event.target.files)" />
+              <img src="assets/img/ic-upload-file.svg" alt="">
+              <h3>Drag and drop SBML model here</h3>
+              <h3>or</h3>
+              <label for="fileDropRef">Browse for model</label>
+            </div>
+        </mat-card>
+      </div>
+      <div class="separator-column">
+        OR
+      </div>
+      <div>
+        <mat-card class="try-model-card mat-elevation-z6" >
+
+          <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
+
+            <ng-container matColumnDef="model">
+              <th mat-header-cell *matHeaderCellDef> Model </th>
+              <td mat-cell *matCellDef="let element"> {{element.model}} </td>
+            </ng-container>
+
+            <ng-container matColumnDef="try">
+              <th mat-header-cell *matHeaderCellDef> Try </th>
+              <td mat-cell *matCellDef="let element">
+                <button mat-raised-button [disabled]="loading_file" color="primary" (click)="tryModelUpload(element.model, element.try)">Try this model</button>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="link">
+              <th mat-header-cell *matHeaderCellDef> Link </th>
+              <td mat-cell *matCellDef="let element">
+                <a mat-stroked-button class="view-model-button"  color="accent" href="{{element.link}}" target="_blank">
+                  <i class="fas fa-external-link-alt"></i>
+                </a>
+              </td>
+            </ng-container>
+
+            <!--<tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>-->
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+          </table>
+        </mat-card>
+      </div>
+    </div>
 
     <div *ngIf="loading_file">
       <div class="progress-container">
@@ -39,7 +90,6 @@
     <div *ngIf="error_reading_file">
       <mat-card class="error-card">
         <mat-card-content>
-          Error reading file:
           {{ error_text }}
         </mat-card-content>
       </mat-card>
@@ -53,7 +103,7 @@
   <footer class="page-footer">
     <div class="footer-copyright darken-3">
       <div class="container ">
-        © 2021 Alex Oarga <718123 at unizar.es>
+        © 2022 Alex Oarga <a href="mailto:contrabass@unizar.es" style="color: white">&lt;contrabass@unizar.es&gt;</a>
         <a class="grey-text
             text-lighten-4 right" href="https://github.com/openCONTRABASS">
           CONTRABASS organization

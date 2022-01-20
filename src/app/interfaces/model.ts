@@ -9,6 +9,7 @@ export interface Model {
   file_spreadsheet: string,
   metabolites: number;
   reactions: number;
+  reactions_list: string[];
   genes: number;
   tasks: Task[];
   pending_length: number; // position at the tasks queue in backend

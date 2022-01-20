@@ -9,9 +9,9 @@ export const environment = {
   EXPIRY_MODELS: 48, // 2 days
   EXPIRY_TASKS: 48, // 2 days
 
-  websocketEndpoint: 'ws://localhost:80',
-  baseApiUrl: 'http://localhost:80',
-  baseApiUrlStatic: 'http://localhost:80/static/',
+  websocketEndpoint: 'ws://localhost:5000',
+  baseApiUrl: 'http://localhost:5000',
+  baseApiUrlStatic: 'http://localhost:5000/static/',
 
 };
 

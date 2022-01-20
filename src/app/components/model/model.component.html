@@ -22,9 +22,11 @@
           || formGrowthDependentGroup.dirty)">
             <div class="form-group">
               <mat-form-field appearance="fill">
-                <mat-label>Objective</mat-label>
-                <input matInput class="form-control"
-                       formControlName="objective">
+                <mat-label>Objective reaction</mat-label>
+                <mat-select class="form-control"
+                            formControlName="objective">
+                  <mat-option *ngFor="let r of model.reactions_list" [value]="r">{{r}}</mat-option>
+                </mat-select>
               </mat-form-field>
 
             </div>
@@ -63,14 +65,16 @@
             </mat-form-field>
 
             <mat-form-field appearance="fill">
-              <mat-label>Objective</mat-label>
-              <input matInput class="form-control"
-                     formControlName="objective">
+              <mat-label>Objective reaction</mat-label>
+              <mat-select class="form-control"
+                          formControlName="objective">
+                <mat-option *ngFor="let r of model.reactions_list" [value]="r">{{r}}</mat-option>
+              </mat-select>
             </mat-form-field>
 
             <!--
             <mat-form-field appearance="fill">
-              <mat-label>Optiization method</mat-label>
+              <mat-label>Optimization method</mat-label>
               <mat-select formControlName="optimization">
                 <mat-option *ngFor="let optimization of optimizationEnumView" [value]="optimization.value" >
                   {{optimization.viewValue}}

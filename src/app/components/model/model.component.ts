@@ -43,16 +43,8 @@ export class ModelComponent implements OnInit {
 
   formGrowthDependentGroup: FormGroup;
   formReactionsSetsGroup: FormGroup;
-  formCGrowthDependentInitialValues: FormGrowthDependent = {
-    uuid: undefined,
-    objective: undefined,
-  };
-
-  formReactionsInitialValues: FormReactions = {
-    uuid: undefined,
-    objective: undefined,
-    fraction_of_optimum: 1.0,
-  };
+  formCGrowthDependentInitialValues: FormGrowthDependent;
+  formReactionsInitialValues: FormReactions;
 
   restoredLogs: NgxLogMessage[] = [];
 
@@ -67,9 +59,22 @@ export class ModelComponent implements OnInit {
 
     /********************************************************************************************/
     /* FORM VALIDATION */
+    this.formCGrowthDependentInitialValues = {
+      uuid: undefined,
+      objective:  this.model.reactions_list.length > 0 ? this.model.reactions_list[0] : undefined, // By default position 0 contains the objective reaction
+    };
+
+    this.formReactionsInitialValues = {
+      uuid: undefined,
+      objective: undefined,
+      fraction_of_optimum: 1.0,
+    };
+
     this.formGrowthDependentGroup = new FormGroup({
       uuid: new FormControl(this.formCGrowthDependentInitialValues.uuid),
-      objective: new FormControl(this.formCGrowthDependentInitialValues.objective, []),
+      objective: new FormControl(this.formCGrowthDependentInitialValues.objective, [
+        this.validationService.validateEmptyObjective(),
+      ]),
     }, { validators: this.validationService.formGrowthDependentValidator });
 
     this.formReactionsSetsGroup = new FormGroup({
@@ -77,7 +82,9 @@ export class ModelComponent implements OnInit {
       fraction_of_optimum: new FormControl(this.formReactionsInitialValues.fraction_of_optimum, [
         this.validationService.minMaxValidator(Constants.MIN_FRACTION_OPTIMUM, Constants.MAX_FRACTION_OPTIMUM),
       ]),
-      objective: new FormControl(this.formReactionsInitialValues.objective, []),
+      objective: new FormControl(this.formCGrowthDependentInitialValues.objective, [
+        this.validationService.validateEmptyObjective(),
+      ]),
     }, { validators: this.validationService.formReactionsValidator });
 
     /********************************************************************************************/
@@ -430,7 +437,6 @@ export class ModelComponent implements OnInit {
     let task_still_running;
     for (let i = 0; i < model.tasks.length; i++) {
       if (model.tasks[i].status === TaskStatusEnum.IN_QUEUE || model.tasks[i].status === TaskStatusEnum.RUNNING) {
-        console.log(model.tasks[i].status);
         still_running = true;
         task_still_running = i;
       }

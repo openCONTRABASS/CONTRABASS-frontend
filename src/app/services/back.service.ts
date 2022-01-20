@@ -17,6 +17,7 @@ export class BackService {
 
   // API url
   sumbitEndpoint = '/submit';
+  sumbitURLEndpoint = '/submit_url';
 
   private taskObserver$: Observable<any>;
   private stopPolling = new Subject();
@@ -36,6 +37,21 @@ export class BackService {
     // with formData as req
     return this.http.post(
       Constants.baseApiUrl + this.sumbitEndpoint, formData, {observe: 'response'});
+  }
+
+  // Returns an observable
+  upload_with_url(url: string): Observable<HttpResponse<any>> {
+
+    // Create form data
+    const formData = new FormData();
+
+    // Store form name as "file" with file data
+    formData.append('model_url', url);
+
+    // Make http post request over api
+    // with formData as req
+    return this.http.post(
+      Constants.baseApiUrl + this.sumbitURLEndpoint, formData, {observe: 'response'});
   }
 
   computeGrowthDependent(formGrowthDependentValues: FormGrowthDependent): Observable<any> {
