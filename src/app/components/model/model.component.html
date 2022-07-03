@@ -108,12 +108,16 @@
         ></log-monitor>
   </div>
   <div *ngSwitchCase="taskStatusEnum.DONE">
-    <a href="{{model.file_html}}">
-      <button class="action-button" mat-raised-button color="basic">View Report</button>
-    </a>
     <a href="{{model.file_spreadsheet}}">
       <button class="action-button" mat-raised-button color="basic">Download spreadsheet <mat-icon aria-hidden="false">download_file</mat-icon></button>
     </a>
+    <a *ngIf="taskType(model) == taskTypeEnum.COMPUTE_GROWTH_DEPENDENT" href="{{model.file_html}}">
+      <button class="action-button" mat-raised-button color="basic">View growth dependent report</button>
+    </a>
+    <a *ngIf="taskType(model) == taskTypeEnum.COMPUTE_CRITICAL_REACTIONS" href="{{model.file_html}}">
+      <button class="action-button" mat-raised-button color="basic">View critical reactions report</button>
+    </a>
+
   </div>
   <span *ngSwitchCase="taskStatusEnum.EXPIRED">Expired</span>
   <span *ngSwitchCase="taskStatusEnum.FAILURE">Error: Something went wrong...</span>

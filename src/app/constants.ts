@@ -20,6 +20,9 @@ export class Constants {
   public static MIN_FRACTION_OPTIMUM = 0.0;
   public static MAX_FRACTION_OPTIMUM = 1.0;
 
+  public static NUM_RETRY_AFTER_ERROR_REQUEST = 3;
+  public static DELAY_RETRY_REQUEST = 1000;
+
   public static MODEL_DATA: any[] = [
     {
       model: 'Escherichia coli K-12 (MG1655)',
@@ -43,7 +46,7 @@ export class Constants {
     },
   ];
   public static MODEL_COLUMNS: any[] = ['model', 'try', 'link'];
-  static ERROR_READING_FILE: string = "Error reading file:";
+  static ERROR_READING_FILE: string = "Error reading file";
   static ERROR_FVA_RANGE: string = 'Fraction of optimum must be between 0.0 and 1.0';
   static ERROR_NO_REACTION_OBJECTIVE: string = 'No valid objective available. Does the model have reactions?'
 

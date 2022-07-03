@@ -34,6 +34,7 @@ export class ModelComponent implements OnInit {
   @Input() model: Model;
 
   public taskStatusEnum = TaskStatusEnum;
+  public taskTypeEnum = TaskTypeEnum;
   private taskStatusInfo$: Observable<any>;
   private taskObserver$: Observable<any>;
   private stopPolling = new Subject();
@@ -212,6 +213,7 @@ export class ModelComponent implements OnInit {
     console.log('Suscribing...');
     this.taskStatusInfo$.subscribe(
       (result) => {
+
         console.log('Result:');
         console.log(result);
 
@@ -482,5 +484,9 @@ export class ModelComponent implements OnInit {
     // the log message is either way passed to the 'logStream' subject,
     // which is consumed by the 'log-monitor' component.
     this.logStream.next(newLog);
+  }
+
+  taskType(model: Model): TaskTypeEnum {
+    return model.tasks[0].type;
   }
 }

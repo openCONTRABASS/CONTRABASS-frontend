@@ -4,6 +4,9 @@
     <div class="nav-wrapper mat-elevation-z6">
       <a href="" class="brand-logo" id="model_name">CONTRABASS</a>
       <ul class="right">
+        <li><a href="https://contrabass.readthedocs.io/en/latest/OnlineWebApp.html#usage" class="header-link">
+          <i class="fas fa-info-circle" style="color:white"></i><div class="header-link-text hide-on-med-and-down">Usage</div>
+        </a></li>
         <li><a href="https://contrabass.readthedocs.io/en/latest/?badge=latest" class="header-link">
           <i class="fa fa-file-alt" style="color:white"></i><div class="header-link-text hide-on-med-and-down">Documentation</div>
         </a></li>
@@ -15,9 +18,8 @@
   </nav>
 
   <main>
-
-    <div *ngIf="error_connection">
-      <mat-card class="error-card">
+    <div #errorCard>
+      <mat-card class="error-card" *ngIf="error_connection">
         <mat-card-content class="error-connection-card">
           <div class="div-icon-error-connection">
             <span class="material-icons" style="text-align: center; font-size: 50px;">cloud_off</span>
@@ -30,6 +32,46 @@
           </div>
         </mat-card-content>
       </mat-card>
+    </div>
+
+    <div [class.hidden] = "this.infoClosed === true">
+      <mat-card class="info-card mat-elevation-z2">
+        <mat-card-content class="info-container">
+          <div>
+            <h1>Welcome to CONTRABASS</h1>
+            CONTRABASS stands for constraint-based models vulnerabilities analysis. <br>
+            To start using CONTRABASS, load an SBML model or pick one of the examples below.  <br>
+
+          </div>
+          <div>
+            <div><i class="fas fa-times clickable-item close-icon" (click)="clickCloseInfo()"></i></div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <div class="info-accordion">
+      <mat-accordion>
+        <mat-expansion-panel>
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              Readme
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+          Once the model has been loaded, CONTRABASS can perform 2 types of analysis: <br>
+          <ul style="margin-left: 20px;">
+            <li><b>Compute growth dependent reactions:</b> produce an overview of the critical reactions in the model and explore how they vary with the growth constraints.</li>
+            <li><b>Compute critical reactions:</b> compute sets of critical reactions and their intersections for a given growth rate.</li>
+          </ul>
+
+          Please note:
+          <ul style="margin-left: 20px;">
+            <li>Once the results are available you can download them. It is not guaranteed that the reports will be available on the server for more than 2 hours.</li>
+            <li>CONTRABASS will store temporarily the submitted models for debugging purposes.</li>
+            <li>CONTRABASS can also be executed locally as a command line application. View: <a href="https://github.com/openCONTRABASS/CONTRABASS">Github</a></li>
+          </ul>
+        </mat-expansion-panel>
+      </mat-accordion>
     </div>
 
     <div class="flex-container">
@@ -51,7 +93,7 @@
       <div>
         <mat-card class="try-model-card mat-elevation-z6" >
 
-          <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
+          <table mat-table [dataSource]="dataSource">
 
             <ng-container matColumnDef="model">
               <th mat-header-cell *matHeaderCellDef> Model </th>

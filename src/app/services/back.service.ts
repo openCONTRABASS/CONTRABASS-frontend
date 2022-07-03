@@ -1,7 +1,20 @@
 import { Injectable } from '@angular/core';
 import {HttpClient, HttpHeaders, HttpResponse} from '@angular/common/http';
-import {Observable, Subject, timer} from 'rxjs';
-import {retry, share, switchMap, takeUntil, tap} from 'rxjs/operators';
+import {EMPTY, Observable, of, Subject, throwError, timer} from 'rxjs';
+import {
+  catchError,
+  concatMap,
+  delay,
+  mergeMap,
+  retry,
+  retryWhen,
+  share,
+  shareReplay,
+  switchMap,
+  take,
+  takeUntil,
+  tap
+} from 'rxjs/operators';
 import {Model} from '../interfaces/model';
 import {TaskStatusEnum} from '../interfaces/task-status-enum';
 import {FormGrowthDependent} from '../interfaces/forms/form-growth-dependent';
@@ -35,12 +48,18 @@ export class BackService {
 
     // Make http post request over api
     // with formData as req
+    let retries = Constants.NUM_RETRY_AFTER_ERROR_REQUEST;
     return this.http.post(
-      Constants.baseApiUrl + this.sumbitEndpoint, formData, {observe: 'response'});
+      Constants.baseApiUrl + this.sumbitEndpoint, formData, {observe: 'response'}).pipe(
+      retryWhen(errors => errors.pipe(
+        delay(Constants.DELAY_RETRY_REQUEST),
+        mergeMap(error => retries-- > 0 ? of(error) : throwError(error))
+      ))
+    );
   }
 
   // Returns an observable
-  upload_with_url(url: string): Observable<HttpResponse<any>> {
+  upload_with_url(url: string): Observable<any> {
 
     // Create form data
     const formData = new FormData();
@@ -50,8 +69,14 @@ export class BackService {
 
     // Make http post request over api
     // with formData as req
+    let retries = Constants.NUM_RETRY_AFTER_ERROR_REQUEST;
     return this.http.post(
-      Constants.baseApiUrl + this.sumbitURLEndpoint, formData, {observe: 'response'});
+      Constants.baseApiUrl + this.sumbitURLEndpoint, formData, {observe: 'response'}).pipe(
+        retryWhen(errors => errors.pipe(
+          delay(Constants.DELAY_RETRY_REQUEST),
+          mergeMap(error => retries-- > 0 ? of(error) : throwError(error))
+        ))
+    );
   }
 
   computeGrowthDependent(formGrowthDependentValues: FormGrowthDependent): Observable<any> {

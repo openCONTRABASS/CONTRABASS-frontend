@@ -32,7 +32,7 @@ footer {
 
 .page-footer {
   padding-top: 0px;
-  background-color: #212121;
+  background-color: #CEA2AC;
 }
 
 .page-footer .footer-copyright .container {
@@ -195,6 +195,18 @@ footer {
   padding-right: 10px;
 }
 
+.info-card {
+  width: 62%;
+  margin: auto;
+  margin-top: 2em;
+  background-color: #EFD9CE;
+}
+
+.info-container {
+  display: flex;
+  justify-content: space-between;
+}
+
 .error-card {
   margin:2em;
   color: white;
@@ -206,4 +218,31 @@ footer {
   padding-right: 2em;
 }
 
+.close-icon {
+  cursor: pointer;
+  font-size: 26px;
+  align-content: end;
+}
 
+.hidden {
+  display: none;
+}
+
+.info-card {
+  border-bottom-left-radius: 0px;
+  border-bottom-right-radius: 0px;
+}
+
+.info-accordion {
+  width: 62%;
+  margin: auto;
+}
+
+.info-accordion ul:not(.browser-default) > li {
+  list-style-type: disc;
+}
+
+.info-accordion .mat-expansion-panel {
+  border-top-left-radius: 0px;
+  border-top-right-radius: 0px;
+}

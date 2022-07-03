@@ -8,6 +8,7 @@ import {Task} from './interfaces/task';
 import {WebsocketsService} from './services/websockets.service';
 import {NotificationsService} from './services/notifications.service';
 import {Constants} from './constants';
+import {environment} from '../environments/environment.prod';
 
 @Component({
   selector: 'app-root',
@@ -16,6 +17,7 @@ import {Constants} from './constants';
 })
 export class AppComponent implements OnInit {
   @ViewChild('fileDropRef', { static: false }) fileDropEl: ElementRef;
+  @ViewChild('errorCard', { static: false }) errorCard: ElementRef;
   files: any[] = [];
   models: Model[] = [];
 
@@ -31,8 +33,20 @@ export class AppComponent implements OnInit {
   displayedColumns: any;
   dataSource: any;
 
+  // info message has been closed
+  infoClosed: boolean;
+
 
   ngOnInit(): void {
+
+    // FOR NOW : redirect from https to http
+    if (environment.production) {
+      if (location.protocol === 'https:') {
+        window.location.href = location.href.replace('https', 'http');
+      }
+    }
+
+    this.infoClosed = false;
 
     this.displayedColumns = Constants.MODEL_COLUMNS;
     this.dataSource = Constants.MODEL_DATA;
@@ -128,11 +142,11 @@ export class AppComponent implements OnInit {
 
   handleSubmitErrorResponse(err, model_name) {
     console.log('HTTP Error', err);
-    if (err.status !== 0) {
+    if (err !== undefined && err.status !== 0) {
       this.error_reading_file = true;
       // No connection error with backend!
       this.error_connection = false;
-      this.error_text = Constants.ERROR_READING_FILE + err.error.message;
+      this.error_text = Constants.ERROR_READING_FILE + ': ' + err.error.message;
       this.loading_file = false;
       // Notify that there was an error reading the file in a toast notification
       this.notificationsService.error(`Error reading file ${model_name}`);
@@ -141,6 +155,8 @@ export class AppComponent implements OnInit {
       this.error_connection = true;
       // stop loading file
       this.loading_file = false;
+      // move to top of page
+      this.errorCard.nativeElement.scrollIntoView({behavior: "smooth", block: "start", inline: "start"});
     }
   }
 
@@ -214,6 +230,12 @@ export class AppComponent implements OnInit {
   pushModel(model: Model) {
     this.storageService.pushModel(model);
     this.models.push(model);
+  }
+
+  clickCloseInfo(): void {
+    console.log('closing info');
+    this.infoClosed = true;
+    console.log(this.infoClosed);
   }
 
 }
